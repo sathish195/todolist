@@ -4,14 +4,16 @@ import AddComponent from "./add";
 
 import "./add.css";
 
+
+
 const Todo = () => {
   const [array, setArray] = useState([]);
   const [user, setUser] = useState([]);
   const [filter, setFilter] = useState("all");
 
   const [modalToEdit, setModalToEdit] = useState({});
-  const [titleEdit, setTitleEdit] = useState();
-  const [editCompletedStatus, setEditCompletedStatus] = useState(false);
+  const [titleEdit, setTitleEdit] = useState("");
+  const [editCompletedStatus, setEditCompletedStatus] = useState();
 
   //   get data for api calll
   useEffect(() => {
@@ -47,34 +49,50 @@ const Todo = () => {
     }
   };
 
-  // onchange for Edit filed
-
-  const onChangeTitleEdit = (event) => {
-    setTitleEdit(event.target.value);
-  };
 
   // delete functionality
 
   const remove = (id) => {
     const deleted = array.filter((x) => x.id !== id);
+    const deletedTask = array.filter((x) => x.id === id);
+    
     setArray(deleted);
+    alert("You are deleting the : " + deletedTask[0].title)
+    
   };
 
   //   Edit functionality
   const onCklickUpdate = () => {
-    setTitleEdit("");
     const select = array.filter((x) => x.id === modalToEdit.id)[0];
-    const modData = array?.map((x) => ({
-      ...x,
-      title: x?.id == select?.id ? titleEdit : x?.title,
-      completed: x?.id == select?.id ? editCompletedStatus : x?.completed,
-    }));
+    if (
+      select.title === titleEdit &&
+      select.completed === editCompletedStatus
+    ) {
+      return
+    } else {
+      const modData = array?.map((x) => ({
+        ...x,
+        title: x?.id == select?.id ? titleEdit : x?.title,
+        completed: x?.id == select?.id ? Boolean(editCompletedStatus) : x?.completed
+      }));
 
-    setArray(modData);
+      setArray(modData);
+      console.log(modData);
+      setModalToEdit({});
+      setTitleEdit('')
 
-    setModalToEdit({ title: "" });
-    alert("update sucess");
+      alert("update sucess");
+    }
   };
+
+  const onClickEdit = (x) => {
+    setModalToEdit(x);
+    setTitleEdit(x.title);
+    setEditCompletedStatus(x.completed);
+    console.log(modalToEdit);
+    console.log("sathish");
+  };
+
   return (
     <div>
       <div className="Todo-apllication">
@@ -109,9 +127,10 @@ const Todo = () => {
               <th scope="col">Id</th>
               {/* <th scope="col">UserId</th> */}
               <th scope="col">Title</th>
-              <th scope="col " className="text-end" >Actions</th>
+              <th scope="col " className="text-end">
+                Actions
+              </th>
               <th scope="col"></th>
-
             </tr>
           </thead>
           <tbody>
@@ -124,7 +143,7 @@ const Todo = () => {
                   {
                     <input
                       type="checkbox"
-                      checked={x.completed ? true : false} // Ternary operator for conditional rendering
+                      checked={x.completed } // Ternary operator for conditional rendering
                       onChange={() => check(x.id)}
                     />
                   }
@@ -136,19 +155,19 @@ const Todo = () => {
                   >
                     {x.completed ? "completed" : "not completed"}
                   </span>
-                  
                 </td>
                 <td>
                   <div className="d-flex">
                     <button
                       type="button"
                       class="btn "
-                      onClick={() => setModalToEdit(x)}
+                      onClick={() => onClickEdit(x)}
                       data-bs-toggle="modal"
                       data-bs-target="#staticBackdrop"
                     >
                       <i class="fa-solid fa-pen-to-square"></i>
                     </button>
+
                     <button className="btn" onClick={() => remove(x.id)}>
                       <i class="fa-solid fa-trash"></i>
                     </button>
@@ -165,49 +184,53 @@ const Todo = () => {
 
       {/* <!--Edit pouop Modal  --> */}
       <div
-        class="modal fade"
+        className="modal fade"
         id="staticBackdrop"
         data-bs-backdrop="static"
         data-bs-keyboard="false"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="staticBackdropLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog text-capitalize ">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">
+        <div className="modal-dialog text-capitalize ">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="staticBackdropLabel">
                 Edit Task
               </h5>
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <div className="d-flex flex-column">
                 <label htmlFor="">Task name:</label>
                 <input
                   type="text"
                   placeholder="Enter Task Name"
                   className="w-100 mb-3 p-1"
-                  onChange={(e) => onChangeTitleEdit(e)}
-                  defaultValue={modalToEdit.title}
+                  value={titleEdit}
+                  onChange={(e) => setTitleEdit(e.target.value)}
                 />
+                <label htmlFor="">Select Task Status:</label>
 
+                  
                 <select
                   className="p-1"
                   name=""
                   id=""
                   onChange={(e) => setEditCompletedStatus(e.target.value)}
+                  value={editCompletedStatus}
                 >
+                  
                   <option value={false}>False</option>
                   <option value={true}>True</option>
                 </select>
                 <p>
-                  Cureent Status :
+                  Current Status :
                   <span
                     className={`fw-semibold px-2 text-capitalize ${
                       modalToEdit.completed ? "text-success" : " text-danger"
@@ -218,17 +241,17 @@ const Todo = () => {
                 </p>
               </div>
             </div>
-            <div class="modal-footer">
+            <div className="modal-footer">
               <button
                 type="button"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
                 Close
               </button>
               <button
                 type="button"
-                class="btn btn-primary"
+                className="btn btn-primary"
                 data-bs-dismiss="modal"
                 onClick={onCklickUpdate}
               >
@@ -238,7 +261,6 @@ const Todo = () => {
           </div>
         </div>
       </div>
-      {/* modal */}
     </div>
   );
 };

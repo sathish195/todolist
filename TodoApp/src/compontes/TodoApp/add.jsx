@@ -28,6 +28,7 @@ else{
     };
     setArray((prevArray) => [...prevArray, newData]);
     alert('success')
+    setName("");
   };
   }
   return (
